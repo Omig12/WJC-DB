@@ -3,7 +3,7 @@ Drop Database if exists WJC;
 
 /* Create it from scratch */
 create Database WJC;
-use 'WJC';
+use WJC;
 
 /* Clear tables */
 drop Table if exists Animals;
