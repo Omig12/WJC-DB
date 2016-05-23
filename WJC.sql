@@ -13,15 +13,15 @@ drop Table if exists Population;
 drop Table if exists Transfer;
 
 /* Schema Definitions with referential integrity */
-create Table Animal (speciesID int, speciesName  varchar(30) not null, class text not null, primary key (speciesID), unique(speciesID, speciesName));
+create Table Animal (speciesID int, speciesName  varchar(30) not null, class text not null, primary key (speciesID), unique(speciesID, speciesName), CHECK (speciesID > 0));
 
-create Table Hazard (speciesID int references Animal(speciesID) on update cascade, preyID int, primary key (speciesID, preyID));
+create Table Hazard (speciesID int references Animal(speciesID) on update cascade, preyID int, primary key (speciesID, preyID), CHECK (preyID > 0));
 
-create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName));
+create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName), CHECK (reserveID > 0));
 
-create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, quantity int, primary key (speciesID, reserveID), CHECK (quantity>0));
+create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, quantity int not null, primary key (speciesID, reserveID), CHECK (quantity > 0));
 
-create Table Transfer (reserveID int references Population(reserveID) on update cascade, speciesID int references Population(speciesID) on update cascade, amount int references Population(quantity), destinationID int references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, amount, speciesID, transfer_date), CHECK (amount>0));
+create Table Transfer (reserveID int references Population(reserveID) on update cascade, speciesID int references Population(speciesID) on update cascade, amount int references Population(quantity), destinationID int references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, amount, speciesID, transfer_date), CHECK (amount > 0));
 
 
 /* Data source: http://www.fws.gov/caribbean/es/endangered-animals.html */
@@ -110,6 +110,51 @@ insert into Transfer values (01, 3, 5, 01, NUll);
 
 /* Triggers */
 delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Animals_BINS` BEFORE INSERT ON `Animal` 
+FOR EACH ROW
+BEGIN 
+  IF (NEW.speciesID > (select Max(speciesID) + 1 From Animal) OR NEW.speciesID < 0)   
+  THEN
+      SET NEW.speciesID := (select Max(speciesID) + 1 From Animal);
+    END IF;
+END;//
+delimiter ;
+
+delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Hazard_BINS` BEFORE INSERT ON `Hazard` 
+FOR EACH ROW
+BEGIN 
+  IF (New.speciesID not in (SELECT speciesID From Animal) OR New.preyID not in (SELECT speciesID From Animal))  
+  THEN
+      SET NEW.speciesID = NULL;
+      SET NEW.PreyID = NULL;
+    END IF;
+END;//
+delimiter ;
+
+delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Reserve_BINS` BEFORE INSERT ON `Reserve` 
+FOR EACH ROW
+BEGIN 
+  IF (NEW.reserveID > (select Max(reserveID) + 1 From Reserve) OR NEW.reserveID < 0)  
+  THEN
+      SET NEW.reserveID := (select Max(reserveID) + 1 From Reserve);
+    END IF;
+END;//
+delimiter ;
+
+delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Population_BINS` BEFORE INSERT ON `Population` 
+FOR EACH ROW
+BEGIN 
+  IF (NEW.quantity <= 0)  
+  THEN
+      SET NEW.quantity = NULL;
+    END IF;
+END;//
+delimiter ;
+
+delimiter //
 CREATE DEFINER=`root`@`localhost` TRIGGER `Transfers_BINS` BEFORE INSERT ON `Transfer` 
 FOR EACH ROW
 BEGIN	
@@ -147,3 +192,5 @@ Select speciesName as Extra_Hazards From Animal where speciesID in (select speci
 Select speciesName as Canibals From Animal where speciesID in (Select distinct speciesID From Hazard where speciesID = preyID order by speciesID);
 
 Select speciesName as Name, sum(quantity) as Quantity from Population natural join Animal group by speciesID;
+
+SELECT speciesName as Not_in_Reserve from Animal where speciesID not in (select speciesID from Population);
