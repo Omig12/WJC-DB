@@ -78,6 +78,9 @@ insert into Population values (9, 05, 18);
 insert into Population values (4, 01, 24);
 insert into Population values (2, 11, 61);
 insert into Population values (3, 10, 87);
+insert into Population values (10, 3, 47);
+insert into Population values (4, 6, 1);
+insert into Population values (6, 4, 56);
 
 /* Hazard (speciesID, preyID) */
 

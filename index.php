@@ -50,7 +50,7 @@
 						$conn = mysqli_connect($db_host,$db_username,$db_pass,$db_name);
 							
 						// Check connection
-						if($conn->connect_error){
+						if($conn->connect_error) {
 				     		die('<br>Could not connect: ' . mysqli_error().'<br>');
 				   		} 
 				   		else {
@@ -58,50 +58,55 @@
 				  		}	
 	
 				  		// Show all tables
-				  		if (isset($_POST['Tables'])){
+				  		if (isset($_POST['Tables'])) {
 							$sql = "SHOW Tables;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Animal Amount
-						else if (isset($_POST['Quantity'])){
+						else if (isset($_POST['Quantity'])) {
 							$sql = "SELECT speciesName as Name, sum(quantity) as Quantity from Population natural join Animal group by speciesID;";
 							$result = mysqli_query($conn, $sql);
 						}	
 						// Show Animal Table
-						else if (isset($_POST['Animal'])){
+						else if (isset($_POST['Animal'])) {
 							$sql = "SELECT * FROM Animal;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show Reserve Table
-						else if (isset($_POST['Reserve'])){
+						else if (isset($_POST['Reserve'])) {
 							$sql = "SELECT * FROM Reserve";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show Hazard Table
-						else if (isset($_POST['Predators'])){
+						else if (isset($_POST['Predators'])) {
 							$sql = "SELECT * FROM Hazard order BY speciesID";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show Population Table
-						else if (isset($_POST['Population'])){
+						else if (isset($_POST['Population'])) {
 							$sql = "SELECT * FROM Population";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show Transfer Table
-						else if (isset($_POST['Transfer'])){
+						else if (isset($_POST['Transfer'])) {
 							$sql = "SELECT * FROM Transfer";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show full Table of db
-						else if (isset($_POST['Full_DB'])){
+						else if (isset($_POST['Full_DB'])) {
 							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, quantity, city;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Run custom Query
-						else if (isset($_POST['Custom'])){
+						else if (isset($_POST['Custom'])) {
 							$sql = $_POST['Custom'];
 							$result = mysqli_query($conn, $sql);
-							echo "<h4> CUSTOM QUERY: ".$_POST['Custom']."</h4>";
+							echo "<h4>CUSTOM QUERY: ".$_POST['Custom']."</h4>";
+							if (!mysqli_query($conn,$sql)) {
+							  echo "SQLSTATE error: ".mysqli_sqlstate($conn);
+							  echo "<br>";
+							  echo "Error description: ".mysqli_error($conn);
+							  }
 						}
 
 						// Fill table 
