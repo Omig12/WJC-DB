@@ -26,13 +26,13 @@
 				<h4><em>Please select only one checkbox or create a custom query and then submit.</em></h4>
 				<form action="index.php" method="post">
 					<input type="checkbox" name='Tables' value=""> Tables <em>(Shows the list of tables contained in WJC's Database)</em><br>
-					<input type="checkbox" name='Full_DB' value=""> Full DB <em>(Shows a relation between all entities except for Transfers)</em><br>
+					<input type="checkbox" name='Full_DB' value=""> Full DB <em>(Shows a relation between all entities except for Transfer)</em><br>
 
-					<input type="checkbox" name='Animals' value=""> Animals <em>(Shows the attributes contained in the Animals entity)</em><br>
-					<input type="checkbox" name='Predators' value=""> Predators <em>(Shows the attributes contained in the Eats entity)</em><br>
+					<input type="checkbox" name='Animal' value=""> Animal <em>(Shows the attributes contained in the Animal entity)</em><br>
+					<input type="checkbox" name='Predators' value=""> Predators <em>(Shows the attributes contained in the Hazard entity)</em><br>
 					<input type="checkbox" name='Reserves' value=""> Reserves <em>(Shows the attributes contained in the Reserves entity)</em><br>
-					<input type="checkbox" name='Populations' value=""> Populations <em>(Shows the attributes contained in the Populations entity)</em><br>
-					<input type="checkbox" name='Transfers' value=""> Transfers <em>(Shows the attributes contained in the Transfers entity)</em><br>
+					<input type="checkbox" name='Population' value=""> Population <em>(Shows the attributes contained in the Population entity)</em><br>
+					<input type="checkbox" name='Transfer' value=""> Transfer <em>(Shows the attributes contained in the Transfer entity)</em><br>
 					
 					Custom Query: <input typq="text" name="Custom" placeholder="SELECT * FROM WHERE ;" style="width:50%;"><br>
 					
@@ -60,114 +60,61 @@
 				  		if (isset($_POST['Tables'])){
 							$sql = "SHOW Tables;";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>Tables_in_WJC</TH></TR>";	
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
-						// Show Animals Table
-						else if (isset($_POST['Animals'])){
-							$sql = "SELECT * FROM Animals;";
+						// Show Animal Table
+						else if (isset($_POST['Animal'])){
+							$sql = "SELECT * FROM Animal;";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>speciesID</TH><TH>speciesName</TH><TH>class</TH></TR>";	
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
 						// Show Reserves Table
 						else if (isset($_POST['Reserves'])){
 							$sql = "SELECT * FROM Reserves";
 							$result = mysqli_query($conn, $sql);
-							echo "<TH>reserveID</TH><TH>reserveName</TH><TH>city</TH></TR>";
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
-						// Show Eats Table
+						// Show Hazard Table
 						else if (isset($_POST['Predators'])){
-							$sql = "SELECT * FROM Eats order BY speciesID";
+							$sql = "SELECT * FROM Hazard order BY speciesID";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>speciesID</TH><TH>preyID</TH></TR>";
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
-						// Show Populations Table
-						else if (isset($_POST['Populations'])){
-							$sql = "SELECT * FROM Populations";
+						// Show Population Table
+						else if (isset($_POST['Population'])){
+							$sql = "SELECT * FROM Population";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>speciesID</TH><TH>reserveID</TH><TH>Population</TH></TR>";
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
-						// Show Transfers Table
-						else if (isset($_POST['Transfers'])){
-							$sql = "SELECT * FROM Transfers";
+						// Show Transfer Table
+						else if (isset($_POST['Transfer'])){
+							$sql = "SELECT * FROM Transfer";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>reserveID</TH><TH>speciesID</TH><TH>Amount</TH><TH>destinationID</TH><TH>transfer_Date</TH></TR>";
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
 						// Show full Table of db
 						else if (isset($_POST['Full_DB'])){
-							$sql = "SELECT * FROM (((Animals natural join Populations) natural join Reserves) natural join Eats) natural join Animals as A;";
+							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserves) natural join Hazard) natural join Animal as A;";
 							$result = mysqli_query($conn, $sql);
-							echo "<TR><TH>speciesID</TH><TH>speciesName</TH><TH>class</TH><TH>reserveID</TH><TH>Population</TH><TH>reserveName</TH><TH>city</TH><TH>preyID</TH></TR>";
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}	 
 						}
 						// Run custom Query
 						else if (isset($_POST['Custom'])){
 							$sql = $_POST['Custom'];
 							$result = mysqli_query($conn, $sql);
 							echo "<h4> CUSTOM QUERY:	".$_POST['Custom']."</h4>";
-							echo "<TR>";
-							// Generate Headers
-							$fieldinfo=mysqli_fetch_fields($result);
-							  foreach ($fieldinfo as $val) {
-							    echo "<th>".$val->name."</th>";
-							   }
-							echo "</TR>";
-							// Populate table
-							while($record = mysqli_fetch_array($result)){
-								echo "<tr>";
-								for ($i=0; $i < mysqli_field_count($conn); $i++) { 
-									echo "<td>".$record[$i]."</td>";
-								};
-								echo "</tr>";	
-							}
 						}
+
+						// Fill table 
+						echo "<TR>";
+						// Generate Headers
+						$fieldinfo=mysqli_fetch_fields($result);
+						  foreach ($fieldinfo as $val) {
+						    echo "<th>".$val->name."</th>";
+						   }
+						echo "</TR>";
+						// Populate table
+						while($record = mysqli_fetch_array($result)){
+							echo "<tr>";
+							for ($i=0; $i < mysqli_field_count($conn); $i++) { 
+								echo "<td>".$record[$i]."</td>";
+							};
+							echo "</tr>";	
+						}
+
 						$result->free();
 						$mysqli->close();
 					?>
