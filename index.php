@@ -23,16 +23,17 @@
 			<!-- Catalog -->
 			<div class="no-gutter" style="background:#EEE;">
 				<h3 style="background:#EEE; border-bottom:1px solid #666;"> Search WJC </h3><br>
-				<h4><em>Please select only one checkbox or create a custom query and then submit.</em></h4>
+				<h4><em>Please select one radio or create a custom query and then submit.</em></h4>
 				<form action="index.php" method="post">
-					<input type="checkbox" name='Tables' value=""> Tables <em>(Shows the list of tables contained in WJC's Database)</em><br>
-					<input type="checkbox" name='Full_DB' value=""> Full DB <em>(Shows a relation between all entities except for Transfer)</em><br>
+					<input type="radio" name='Tables' value=""> Tables <em>(Shows the list of tables contained in WJC's Database)</em><br>
+					<input type="radio" name='Full_DB' value=""> Full DB <em>(Shows a relation between all entities except for Transfer)</em><br>
+					<input type="radio" name='Quantity' value=""> Quantity <em>(Shows Name and Quatity of each Animal in WJC's Database)</em><br>
 
-					<input type="checkbox" name='Animal' value=""> Animal <em>(Shows the attributes contained in the Animal entity)</em><br>
-					<input type="checkbox" name='Predators' value=""> Predators <em>(Shows the attributes contained in the Hazard entity)</em><br>
-					<input type="checkbox" name='Reserves' value=""> Reserves <em>(Shows the attributes contained in the Reserves entity)</em><br>
-					<input type="checkbox" name='Population' value=""> Population <em>(Shows the attributes contained in the Population entity)</em><br>
-					<input type="checkbox" name='Transfer' value=""> Transfer <em>(Shows the attributes contained in the Transfer entity)</em><br>
+					<input type="radio" name='Animal' value=""> Animal <em>(Shows the attributes contained in the Animal entity)</em><br>
+					<input type="radio" name='Predators' value=""> Predators <em>(Shows the attributes contained in the Hazard entity)</em><br>
+					<input type="radio" name='Reserve' value=""> Reserve <em>(Shows the attributes contained in the Reserve entity)</em><br>
+					<input type="radio" name='Population' value=""> Population <em>(Shows the attributes contained in the Population entity)</em><br>
+					<input type="radio" name='Transfer' value=""> Transfer <em>(Shows the attributes contained in the Transfer entity)</em><br>
 					
 					Custom Query: <input typq="text" name="Custom" placeholder="SELECT * FROM WHERE ;" style="width:50%;"><br>
 					
@@ -61,14 +62,19 @@
 							$sql = "SHOW Tables;";
 							$result = mysqli_query($conn, $sql);
 						}
+						// Animal Amount
+						else if (isset($_POST['Quantity'])){
+							$sql = "SELECT speciesName as Name, sum(population) as Quantity from Population natural join Animal group by speciesID;";
+							$result = mysqli_query($conn, $sql);
+						}	
 						// Show Animal Table
 						else if (isset($_POST['Animal'])){
 							$sql = "SELECT * FROM Animal;";
 							$result = mysqli_query($conn, $sql);
 						}
-						// Show Reserves Table
-						else if (isset($_POST['Reserves'])){
-							$sql = "SELECT * FROM Reserves";
+						// Show Reserve Table
+						else if (isset($_POST['Reserve'])){
+							$sql = "SELECT * FROM Reserve";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Show Hazard Table
@@ -88,14 +94,14 @@
 						}
 						// Show full Table of db
 						else if (isset($_POST['Full_DB'])){
-							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserves) natural join Hazard) natural join Animal as A;";
+							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, population, city;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Run custom Query
 						else if (isset($_POST['Custom'])){
 							$sql = $_POST['Custom'];
 							$result = mysqli_query($conn, $sql);
-							echo "<h4> CUSTOM QUERY:	".$_POST['Custom']."</h4>";
+							echo "<h4> CUSTOM QUERY: ".$_POST['Custom']."</h4>";
 						}
 
 						// Fill table 
