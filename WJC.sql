@@ -17,14 +17,16 @@ create Table Animals (speciesID int, speciesName  varchar(30) not null, class te
 
 create Table Eats (speciesID int references Animals(speciesID) on update cascade, preyID int, primary key (speciesID, preyID));
 
-create Table Reserves (reserveID int, reserveName varchar(20), city text, primary key (reserveID, reserveName));
+create Table Reserves (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName));
 
 create Table Populations (speciesID int references Animals(speciesID) on update cascade, reserveID int references Reserves(reserveID) on update cascade, Population int, primary key (speciesID, reserveID));
 
-create Table Transfers (reserveID int references Reserves(reserveID) on update cascade, speciesID int references Animals(speciesID) on update cascade, Amount int not null, destinationID int not null, primary key (reserveID, destinationID));
+create Table Transfers (reserveID int references Populations(reserveID) on update cascade, speciesID int references Populations(speciesID) on update cascade, Amount int references Populations(population), destinationID int references Reserves(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, Amount, speciesID, transfer_date));
 
 
 /* Data source: http://www.fws.gov/caribbean/es/endangered-animals.html */
+/* Data source: http://www.puertorico.com/reserves/ */
+/* Data source: */
 
 
 /* Animals (SpeciesID, SpeciesName, Class) */
@@ -44,10 +46,17 @@ insert into Animals values (12, 'Trichechus manatus', 'Mammals');
 
 /* Reserves (reserveID, reserveName) */
 
-insert into Reserves values (01, 'El yunque', 'Naguabo');
-insert into Reserves values (02, 'El seco', 'Guanica');
-insert into Reserves values (03, 'Humacao', NULL);
-insert into Reserves values (04, 'Toro', NULL);
+insert into Reserves values (01, 'El Yunque', 'Rio Grande');
+insert into Reserves values (02, 'Aguirre Forest Reserve', 'Salinas');
+insert into Reserves values (03, 'Tortuguero Lagoon Reserve', 'Vega Baja');
+insert into Reserves values (04, 'Toro Negro Forestry Reserve',  'Jayuya');
+insert into Reserves values (05, 'Rio Abajo Forest Reserve', 'Utuado');
+insert into Reserves values (06, 'Punta Guaniquilla Reserve', 'Cabo Rojo');
+insert into Reserves values (07, 'Punta Ballena Reserve', 'Guanica');
+insert into Reserves values (08, 'Maricao Forest Reserve', 'Maricao');
+insert into Reserves values (09, 'Boqueron Forest Bird Refuge', 'Cabo Rojo');
+insert into Reserves values (010, 'Humacao Natural Reserve', 'Humacao');
+insert into Reserves values (011, 'Cambalache Forest Reserve', 'Arecibo');
 
 /* Populations (SpeciesID, reserveID, population) */
 
@@ -69,18 +78,45 @@ insert into Eats values (2, 2);
 insert into Eats values (2, 3);
 insert into Eats values (3, 1);
 insert into Eats values (3, 3);
-insert into Eats values (1, 1);
 insert into Eats values (5, 1);
 insert into Eats values (5, 2);
 
-/* Transfers(ReserveID, speciesID, Amount, DestinationID) */
+/* Transfers(ReserveID, speciesID, Amount, DestinationID, transfer_Date) */
 
-insert into Transfers values (02, 1, 3, 04);
-insert into Transfers values (01, 3, 20, 02);
-insert into Transfers values (01, 3, 5, 01);
+insert into Transfers values (02, 1, 3, 04, NULL);
+insert into Transfers values (01, 3, 20, 02, NUll);
+insert into Transfers values (01, 3, 5, 01, NUll);
+
+/* Triggers */
+delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Transfers_BINS` BEFORE INSERT ON `Transfers` 
+FOR EACH ROW
+BEGIN	
+	IF NEW.transfer_Date = NULL 
+	THEN
+  		set NEW.transfer_Date := NOW();
+  	END IF;
+END;//
+delimiter ;
+
+delimiter //
+CREATE DEFINER=`root`@`localhost` TRIGGER `Transfers_AINS` AFTER INSERT ON `Transfers` 
+FOR EACH ROW
+BEGIN	
+	IF NEW.Amount > 0 
+	THEN
+  		UPDATE Populations
+  			SET population = (population - NEW.Amount)
+  			WHERE Populations.reserveID = New.reserveID and speciesID = New.speciesID;
+  		UPDATE Populations
+  			SET population = (population + NEW.Amount)
+  			WHERE Populations.reserveID = New.destinationID and speciesID = New.speciesID;
+  	END IF;
+END;//
+delimiter ;
 
 /* Sample queries */
 
 select * from (((Animals natural join Populations) natural join Reserves) natural join Eats) natural join Animals as A;
 
-select Eats.speciesID, Animals.speciesName, preyID, vaina.speciesName from (Eats natural join Animals), Animals as vaina where preyID = vaina.speciesID; 
+select Animals.speciesName as Predator, Prey.speciesName as Prey from (Eats natural join Animals), Animals as Prey where preyID = Prey.speciesID; 
