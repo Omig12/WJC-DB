@@ -64,7 +64,7 @@
 						}
 						// Animal Amount
 						else if (isset($_POST['Quantity'])){
-							$sql = "SELECT speciesName as Name, sum(population) as Quantity from Population natural join Animal group by speciesID;";
+							$sql = "SELECT speciesName as Name, sum(quantity) as Quantity from Population natural join Animal group by speciesID;";
 							$result = mysqli_query($conn, $sql);
 						}	
 						// Show Animal Table
@@ -94,7 +94,7 @@
 						}
 						// Show full Table of db
 						else if (isset($_POST['Full_DB'])){
-							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, population, city;";
+							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, quantity, city;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Run custom Query

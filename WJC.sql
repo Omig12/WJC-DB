@@ -19,9 +19,9 @@ create Table Hazard (speciesID int references Animal(speciesID) on update cascad
 
 create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName));
 
-create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, quantity int, primary key (speciesID, reserveID));
+create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, quantity int, primary key (speciesID, reserveID), CHECK (quantity>0));
 
-create Table Transfer (reserveID int references Population(reserveID) on update cascade, speciesID int references Population(speciesID) on update cascade, Amount int references Population(quantity), destinationID int references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, Amount, speciesID, transfer_date));
+create Table Transfer (reserveID int references Population(reserveID) on update cascade, speciesID int references Population(speciesID) on update cascade, amount int references Population(quantity), destinationID int references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, amount, speciesID, transfer_date), CHECK (amount>0));
 
 
 /* Data source: http://www.fws.gov/caribbean/es/endangered-animals.html */
@@ -29,7 +29,7 @@ create Table Transfer (reserveID int references Population(reserveID) on update 
 /* Data source: */
 
 
-/* Animal (SpeciesID, SpeciesName, Class) */
+/* Animal (speciesID, speciesName, Class) */
 
 insert into Animal values (1, 'Eleutherodactylus juanariveroi', 'Amphibians');
 insert into Animal values (2, 'Eleutherodactylus coqui', 'Amphibians');
@@ -102,7 +102,7 @@ insert into Hazard values (11, 10);
 insert into Hazard values (8, 6);
 insert into Hazard values (8, 3);
 
-/* Transfer(ReserveID, speciesID, Amount, DestinationID, transfer_Date) */
+/* Transfer(reserveID, speciesID, amount, destinationID, transfer_Date) */
 
 insert into Transfer values (02, 1, 3, 04, '2015-11-12');
 insert into Transfer values (01, 3, 20, 02, '2016-03-02');
@@ -124,13 +124,13 @@ delimiter //
 CREATE DEFINER=`root`@`localhost` TRIGGER `Transfers_AINS` AFTER INSERT ON `Transfer` 
 FOR EACH ROW
 BEGIN	
-	IF NEW.Amount > 0 
+	IF NEW.amount > 0 
 	THEN
   		UPDATE Population
-  			SET quantity = (quantity - NEW.Amount)
+  			SET quantity = (quantity - NEW.amount)
   			WHERE Population.reserveID = New.reserveID and speciesID = New.speciesID;
   		UPDATE Population
-  			SET quantity = (quantity + NEW.Amount)
+  			SET quantity = (quantity + NEW.amount)
   			WHERE Population.reserveID = New.destinationID and speciesID = New.speciesID;
   	END IF;
 END;//
