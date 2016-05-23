@@ -17,7 +17,7 @@ create Table Animal (speciesID int, speciesName  varchar(30) not null, class tex
 
 create Table Hazard (speciesID int references Animal(speciesID) on update cascade, preyID int, primary key (speciesID, preyID));
 
-create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName));
+create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID));
 
 create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, Population int, primary key (speciesID, reserveID));
 
