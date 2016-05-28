@@ -1,7 +1,7 @@
 /* Drop database if it already exists */
 Drop Database if exists WJC;
 
-/* Create it from scratch */
+/* Create it FROM scratch */
 create Database WJC;
 use WJC;
 
@@ -13,15 +13,15 @@ drop Table if exists Population;
 drop Table if exists Transfer;
 
 /* Schema Definitions with referential integrity */
-create Table Animal (speciesID int, speciesName  varchar(30) not null, class text not null, primary key (speciesID), unique(speciesID, speciesName), CHECK (speciesID > 0));
+create Table Animal (speciesID int AUTO_INCREMENT, speciesName  varchar(30) not NULL, commonName varchar(30) not NULL, class text not NULL, primary key (speciesID), unique(speciesID, speciesName), CHECK (speciesID > 0));
 
-create Table Hazard (speciesID int references Animal(speciesID) on update cascade, preyID int, primary key (speciesID, preyID), CHECK (preyID > 0));
+create Table Hazard (speciesID int, foreign key (speciesID) references Animal(speciesID) on update cascade, preyID int, primary key (speciesID, preyID), CHECK (preyID > 0));
 
 create Table Reserve (reserveID int, reserveName varchar(30), city text, primary key (reserveID, reserveName), CHECK (reserveID > 0));
 
-create Table Population (speciesID int references Animal(speciesID) on update cascade, reserveID int references Reserve(reserveID) on update cascade, quantity int not null, primary key (speciesID, reserveID), CHECK (quantity > 0));
+create Table Population (speciesID int, foreign key (speciesID) references Animal(speciesID) on update cascade, reserveID int, foreign key (reserveID) references Reserve(reserveID) on update cascade, quantity int not NULL, primary key (speciesID, reserveID), CHECK (quantity > 0));
 
-create Table Transfer (reserveID int references Population(reserveID) on update cascade, speciesID int references Population(speciesID) on update cascade, amount int references Population(quantity), destinationID int references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, amount, speciesID, transfer_date), CHECK (amount > 0));
+create Table Transfer (reserveID int, foreign key (reserveID) references Reserve(reserveID) on update cascade, speciesID int, foreign key (speciesID) references Animal(speciesID) on update cascade, amount int, destinationID int, foreign key (destinationID) references Reserve(reserveID), transfer_Date timestamp, primary key (reserveID, destinationID, amount, speciesID, transfer_date), CHECK (amount > 0));
 
 
 /* Data source: http://www.fws.gov/caribbean/es/endangered-animals.html */
@@ -31,94 +31,96 @@ create Table Transfer (reserveID int references Population(reserveID) on update 
 
 /* Animal (speciesID, speciesName, Class) */
 
-insert into Animal values (1, 'Eleutherodactylus juanariveroi', 'Amphibians');
-insert into Animal values (2, 'Eleutherodactylus coqui', 'Amphibians');
-insert into Animal values (3, 'Anolis roosevelti', 'Reptiles');
-insert into Animal values (4, 'Epicrates inornatus', 'Reptiles');
-insert into Animal values (5, 'Eretmochelys imbricata', 'Reptiles');
-insert into Animal values (6, 'Sphaerodactylus micropithecus', 'Reptiles');
-insert into Animal values (7, 'Accipiter striatus venator', 'Birds');
-insert into Animal values (8, 'Amazona vittata', 'Birds');
-insert into Animal values (9, 'Buteo platypterus brunnescens', 'Birds');
-insert into Animal values (10, 'Caprimulgus noctitherus', 'Birds');
-insert into Animal values (11, 'Columba inornata wetmorei', 'Birds');
-insert into Animal values (12, 'Trichechus manatus', 'Mammals');
+INSERT INTO Animal VALUES (1, 'Eleutherodactylus juanariveroi', 'Coqui' , 'Amphibians');
+INSERT INTO Animal VALUES (2, 'Eleutherodactylus coqui', 'Coqui' , 'Amphibians');
+INSERT INTO Animal VALUES (3, 'Anolis roosevelti', 'Iguana', 'Reptiles');
+INSERT INTO Animal VALUES (4, 'Epicrates inornatus', 'Puerto Rican boa' , 'Reptiles');
+INSERT INTO Animal VALUES (5, 'Eretmochelys imbricata', 'Turtle' , 'Reptiles');
+INSERT INTO Animal VALUES (6, 'Sphaerodactylus micropithecus', 'Monito gecko','Reptiles');
+INSERT INTO Animal VALUES (7, 'Accipiter striatus venator', 'falcón de sierra/gavilán',  'Birds');
+INSERT INTO Animal VALUES (8, 'Amazona vittata', 'Puerto Rican parrot/iguaca' , 'Birds');
+INSERT INTO Animal VALUES (9, 'Buteo platypterus brunnescens', 'guaraguao', 'Birds');
+INSERT INTO Animal VALUES (10, 'Caprimulgus noctitherus', 'Puerto Rican nightjar ', 'Birds');
+INSERT INTO Animal VALUES (11, 'Columba inornata wetmorei', 'plain pigeon' , 'Birds');
+INSERT INTO Animal VALUES (12, 'Trichechus manatus', 'Manati' , 'Mammals');
 
 /* Reserve (reserveID, reserveName) */
 
-insert into Reserve values (01, 'El Yunque', 'Rio Grande');
-insert into Reserve values (02, 'Aguirre Forest Reserve', 'Salinas');
-insert into Reserve values (03, 'Tortuguero Lagoon Reserve', 'Vega Baja');
-insert into Reserve values (04, 'Toro Negro Forestry Reserve',  'Jayuya');
-insert into Reserve values (05, 'Rio Abajo Forest Reserve', 'Utuado');
-insert into Reserve values (06, 'Punta Guaniquilla Reserve', 'Cabo Rojo');
-insert into Reserve values (07, 'Punta Ballena Reserve', 'Guanica');
-insert into Reserve values (08, 'Maricao Forest Reserve', 'Maricao');
-insert into Reserve values (09, 'Boqueron Forest Bird Refuge', 'Cabo Rojo');
-insert into Reserve values (010, 'Humacao Natural Reserve', 'Humacao');
-insert into Reserve values (011, 'Cambalache Forest Reserve', 'Arecibo');
+INSERT INTO Reserve VALUES (01, 'El Yunque', 'Rio Grande');
+INSERT INTO Reserve VALUES (02, 'Aguirre Forest Reserve', 'Salinas');
+INSERT INTO Reserve VALUES (03, 'Tortuguero Lagoon Reserve', 'Vega Baja');
+INSERT INTO Reserve VALUES (04, 'Toro Negro Forestry Reserve',  'Jayuya');
+INSERT INTO Reserve VALUES (05, 'Rio Abajo Forest Reserve', 'Utuado');
+INSERT INTO Reserve VALUES (06, 'Punta Guaniquilla Reserve', 'Cabo Rojo');
+INSERT INTO Reserve VALUES (07, 'Punta Ballena Reserve', 'Guanica');
+INSERT INTO Reserve VALUES (08, 'Maricao Forest Reserve', 'Maricao');
+INSERT INTO Reserve VALUES (09, 'Boqueron Forest Bird Refuge', 'Cabo Rojo');
+INSERT INTO Reserve VALUES (010, 'Humacao Natural Reserve', 'Humacao');
+INSERT INTO Reserve VALUES (011, 'Cambalache Forest Reserve', 'Arecibo');
 
 /* Population (SpeciesID, reserveID, quantity) */
 
-insert into Population values (10, 08, 97);
-insert into Population values (12, 02, 10);
-insert into Population values (9, 09, 61);
-insert into Population values (8, 08, 76);
-insert into Population values (1, 07, 36);
-insert into Population values (8, 05, 37);
-insert into Population values (5, 05, 03);
-insert into Population values (6, 05, 19);
-insert into Population values (12, 08, 42);
-insert into Population values (9, 11, 55);
-insert into Population values (1, 01, 57);
-insert into Population values (9, 12, 61);
-insert into Population values (3, 07, 12);
-insert into Population values (4, 08, 76);
-insert into Population values (9, 05, 18);
-insert into Population values (4, 01, 24);
-insert into Population values (2, 11, 61);
-insert into Population values (3, 10, 87);
-insert into Population values (10, 3, 47);
-insert into Population values (4, 6, 1);
-insert into Population values (6, 4, 56);
+INSERT INTO Population VALUES (10, 08, 97);
+INSERT INTO Population VALUES (12, 02, 10);
+INSERT INTO Population VALUES (9, 09, 61);
+INSERT INTO Population VALUES (8, 08, 76);
+INSERT INTO Population VALUES (1, 07, 36);
+INSERT INTO Population VALUES (8, 05, 37);
+INSERT INTO Population VALUES (5, 05, 03);
+INSERT INTO Population VALUES (6, 05, 19);
+INSERT INTO Population VALUES (12, 08, 42);
+INSERT INTO Population VALUES (9, 11, 55);
+INSERT INTO Population VALUES (1, 01, 57);
+INSERT INTO Population VALUES (9, 01, 61);
+INSERT INTO Population VALUES (3, 07, 12);
+INSERT INTO Population VALUES (4, 08, 76);
+INSERT INTO Population VALUES (9, 05, 18);
+INSERT INTO Population VALUES (4, 01, 24);
+INSERT INTO Population VALUES (2, 11, 61);
+INSERT INTO Population VALUES (3, 10, 87);
+INSERT INTO Population VALUES (10, 03, 47);
+INSERT INTO Population VALUES (4, 06, 1);
+INSERT INTO Population VALUES (6, 04, 56);
 
 /* Hazard (speciesID, preyID) */
 
-insert into Hazard values (8, 2);
-insert into Hazard values (2, 8);		
-insert into Hazard values (9, 2);
-insert into Hazard values (12, 3);
-insert into Hazard values (10, 8);
-insert into Hazard values (3, 9);
-insert into Hazard values (7, 9);
-insert into Hazard values (6, 12);
-insert into Hazard values (5, 6);
-insert into Hazard values (5, 2);
-insert into Hazard values (12, 5);
-insert into Hazard values (6, 1);   
-insert into Hazard values (11, 11);
-insert into Hazard values (2, 2);
-insert into Hazard values (9, 10);
-insert into Hazard values (8, 5);
-insert into Hazard values (11, 6);
-insert into Hazard values (11, 10);
-insert into Hazard values (8, 6);
-insert into Hazard values (8, 3);
+INSERT INTO Hazard VALUES (8, 2);
+INSERT INTO Hazard VALUES (2, 8);		
+INSERT INTO Hazard VALUES (9, 2);
+INSERT INTO Hazard VALUES (12, 3);
+INSERT INTO Hazard VALUES (10, 8);
+INSERT INTO Hazard VALUES (3, 9);
+INSERT INTO Hazard VALUES (7, 9);
+INSERT INTO Hazard VALUES (6, 12);
+INSERT INTO Hazard VALUES (5, 6);
+INSERT INTO Hazard VALUES (5, 2);
+INSERT INTO Hazard VALUES (12, 5);
+INSERT INTO Hazard VALUES (6, 1);   
+INSERT INTO Hazard VALUES (11, 11);
+INSERT INTO Hazard VALUES (2, 2);
+INSERT INTO Hazard VALUES (9, 10);
+INSERT INTO Hazard VALUES (8, 5);
+INSERT INTO Hazard VALUES (11, 6);
+INSERT INTO Hazard VALUES (11, 10);
+INSERT INTO Hazard VALUES (8, 6);
+INSERT INTO Hazard VALUES (8, 3);
 
 /* Transfer(reserveID, speciesID, amount, destinationID, transfer_Date) */
 
-insert into Transfer values (02, 1, 3, 04, '2015-11-12');
-insert into Transfer values (01, 3, 20, 02, '2016-03-02');
-insert into Transfer values (01, 3, 5, 01, NUll);
+INSERT INTO Transfer VALUES (02, 1, 3, 04, '2015-11-12');
+INSERT INTO Transfer VALUES (01, 3, 20, 02, '2016-03-02');
+INSERT INTO Transfer VALUES (08, 4, 23, 06, NULL);
+INSERT INTO Transfer VALUES (08,12, 15, 02, '2014-12-12');
+INSERT INTO Transfer VALUES (01, 4, 10, 06, NULL);
 
 /* Triggers */
 delimiter //
 CREATE DEFINER=`root`@`localhost` TRIGGER `Animals_BINS` BEFORE INSERT ON `Animal` 
 FOR EACH ROW
 BEGIN 
-  IF (NEW.speciesID > (select Max(speciesID) + 1 From Animal) OR NEW.speciesID < 0)   
+  IF (NEW.speciesID > (SELECT Max(speciesID) + 1 FROM Animal) OR NEW.speciesID < 0)   
   THEN
-      SET NEW.speciesID := (select Max(speciesID) + 1 From Animal);
+      SET NEW.speciesID := (SELECT Max(speciesID) + 1 FROM Animal);
     END IF;
 END;//
 delimiter ;
@@ -127,7 +129,7 @@ delimiter //
 CREATE DEFINER=`root`@`localhost` TRIGGER `Hazard_BINS` BEFORE INSERT ON `Hazard` 
 FOR EACH ROW
 BEGIN 
-  IF (New.speciesID not in (SELECT speciesID From Animal) OR New.preyID not in (SELECT speciesID From Animal))  
+  IF (New.speciesID not in (SELECT speciesID FROM Animal) OR New.preyID not in (SELECT speciesID FROM Animal))  
   THEN
       SET NEW.speciesID = NULL;
       SET NEW.PreyID = NULL;
@@ -139,9 +141,9 @@ delimiter //
 CREATE DEFINER=`root`@`localhost` TRIGGER `Reserve_BINS` BEFORE INSERT ON `Reserve` 
 FOR EACH ROW
 BEGIN 
-  IF (NEW.reserveID > (select Max(reserveID) + 1 From Reserve) OR NEW.reserveID < 0)  
+  IF (NEW.reserveID > (SELECT Max(reserveID) + 1 FROM Reserve) OR NEW.reserveID < 0)  
   THEN
-      SET NEW.reserveID := (select Max(reserveID) + 1 From Reserve);
+      SET NEW.reserveID := (SELECT Max(reserveID) + 1 FROM Reserve);
     END IF;
 END;//
 delimiter ;
@@ -186,14 +188,16 @@ delimiter ;
 
 /* Sample queries */
 
-select Animal.speciesName as Predator, Prey.speciesName as Prey from (Hazard natural join Animal), Animal as Prey where preyID = Prey.speciesID order by Prey; 
+SELECT Animal.speciesName as Predator, Prey.speciesName as Prey FROM (Hazard natural join Animal), Animal as Prey WHERE preyID = Prey.speciesID order by Prey; 
 
-Select reserveName, quantity from Reserve, Population where (Reserve.reserveID, Population.speciesID) in (Select P.reserveID, P.speciesID From Population P where P.speciesID in (SELECT A.speciesID FROM Animal A where speciesName = 'Eleutherodactylus coqui') and P.quantity < 250);
+SELECT reserveName, quantity FROM Reserve, Population WHERE (Reserve.reserveID, Population.speciesID) in (SELECT P.reserveID, P.speciesID FROM Population P WHERE P.speciesID in (SELECT A.speciesID FROM Animal A WHERE speciesName = 'Eleutherodactylus coqui') and P.quantity < 250);
 
-Select speciesName as Extra_Hazards From Animal where speciesID in (select speciesID from (Hazard natural join Population) where reserveID in (select reserveID from (Hazard join Population) where preyID = Population.speciesID));
+SELECT speciesName as Extra_Hazards FROM Animal WHERE speciesID in (SELECT speciesID FROM (Hazard natural join Population) WHERE reserveID in (SELECT reserveID FROM (Hazard join Population) WHERE preyID = Population.speciesID));
 
-Select speciesName as Canibals From Animal where speciesID in (Select distinct speciesID From Hazard where speciesID = preyID order by speciesID);
+SELECT speciesName as Canibals FROM Animal WHERE speciesID in (SELECT distinct speciesID FROM Hazard WHERE speciesID = preyID order by speciesID);
 
-Select speciesName as Name, sum(quantity) as Quantity from Population natural join Animal group by speciesID;
+SELECT speciesName as Name, sum(quantity) as Quantity FROM Population natural join Animal group by speciesID;
 
-SELECT speciesName as Not_in_Reserve from Animal where speciesID not in (select speciesID from Population);
+SELECT speciesName as Not_in_Reserve FROM Animal WHERE speciesID not in (SELECT speciesID FROM Population);
+
+SELECT reserveID, reserveName, speciesID, speciesName, Quantity FROM (Reserve Natural Join Population) Natural Join Animal WHERE Quantity < 50;

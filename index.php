@@ -17,7 +17,7 @@
 			<p style="padding-left: 3em; color: #F5F5F8;"> Proyecto para CCOM 4027 <br> Creado por Israel O. Dilán y Juan Lugo</p>
 		</div>
 		<div  class="jumbotron">
-			<img src="https://farm9.staticflickr.com/8658/16225191300_fab6a93a4e_b.jpg)" style="width: 100%; border-radius: .5em;" />
+			<img src="https://farm9.staticflickr.com/8658/16225191300_fab6a93a4e_b.jpg" style="width: 100%; border-radius: .5em;" />
 		</div>
 		<div class="row no-gutter" style="background:#EEE; padding: 1em 1em 1em 1em;"><br><br>
 			<!-- Catalog -->
@@ -34,9 +34,19 @@
 					<input type="radio" name='Reserve' value=""> Reserve <em>(Shows the attributes contained in the Reserve entity)</em><br>
 					<input type="radio" name='Population' value=""> Population <em>(Shows the attributes contained in the Population entity)</em><br>
 					<input type="radio" name='Transfer' value=""> Transfer <em>(Shows the attributes contained in the Transfer entity)</em><br>
-					
-					Custom Query: <input typq="text" name="Custom" placeholder="SELECT * FROM WHERE ;" style="width:50%;"><br>
-					
+					<input type="radio" name='List'> Optional Default Queries:
+						<select name='Queries'>
+								<option value='Default'> Select ... </option>
+								<option value='Coqui'> Coqui </option>
+								<option value='Canibal'> Canibals </option>
+								<option value='Hazard'> Hazards </option>
+								<option value='Coexists'> Dangerous Coexistance </option>
+								<option value='IMG'> IMG </option>
+								<option value='A_Like'> Animal Name Like </option>
+								<option value='R_Like'> Reserve Name Like </option>
+						</select><br><br>
+						
+					Custom Query: <input type="text" name="Custom" placeholder="SELECT (Attribute) FROM (Entity) WHERE (Condition);" style="width:50%;"><br><br>
 					<input type="submit" value="Query WJC">
 				</form>
 				<table class="table table-responsive">
@@ -57,9 +67,17 @@
 				 			echo '<br>Connected successfully<br>';
 				  		}	
 	
+						// List option
+				  		$List = $_POST['Queries'];
+
 				  		// Show all tables
 				  		if (isset($_POST['Tables'])) {
 							$sql = "SHOW Tables;";
+							$result = mysqli_query($conn, $sql);
+						}
+						// Show full Table of db
+						else if (isset($_POST['Full_DB'])) {
+							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, quantity, city;";
 							$result = mysqli_query($conn, $sql);
 						}
 						// Animal Amount
@@ -92,10 +110,49 @@
 							$sql = "SELECT * FROM Transfer";
 							$result = mysqli_query($conn, $sql);
 						}
-						// Show full Table of db
-						else if (isset($_POST['Full_DB'])) {
-							$sql = "SELECT * FROM (((Animal natural join Population) natural join Reserve) natural join Hazard) natural join Animal as A order by SpeciesID DESC, speciesName,class, preyID, reserveID, reserveName, quantity, city;";
+						// Show Selction From list
+						else if (isset($_POST['List'])and isset($_POST['Queries'])) {
+							if ($_POST['Queries'] == 'Default') {
+								echo "<script type='text/javascript'> 
+										alert('Please select a value from list.');
+									</script>";
+							}
+							else if ($_POST['Queries'] == 'Coqui') {
+								$sql = "Select * From Animal Where SpeciesName like '%coqui%';";
+								$result = mysqli_query($conn, $sql);
+							}
+							else if ($_POST['Queries'] == 'Canibal') {
+							$sql = "SELECT speciesName as Canibals FROM Animal WHERE speciesID in (SELECT distinct speciesID FROM Hazard WHERE speciesID = preyID order by speciesID);";
 							$result = mysqli_query($conn, $sql);
+							}
+							else if ($_POST['Queries'] == 'Hazard') {
+									$sql = "SELECT Animal.speciesName as Predator, Prey.speciesName as Prey FROM (Hazard natural join Animal), Animal as Prey WHERE preyID = Prey.speciesID order by Prey;";
+									$result = mysqli_query($conn, $sql);
+								}
+							else if ($_POST['Queries'] == 'Coexists') {
+									$sql = "SELECT speciesName as Extra_Hazards FROM Animal WHERE speciesID in (SELECT speciesID FROM (Hazard natural join Population) WHERE reserveID in (SELECT reserveID FROM (Hazard join Population) WHERE preyID = Population.speciesID));";
+									$result = mysqli_query($conn, $sql);
+								}	
+							else if ($_POST['Queries'] == 'IMG') {
+								echo '<img src="https://upload.wikimedia.org/wikipedia/en/e/e4/Anolis_roosevelti.jpg">';
+							}
+							else if ($_POST['Queries'] == 'A_Like') {
+								if ($_POST['Custom']){
+								echo "<h4>Searched: ".$_POST['Custom']."</h4>";
+								$sql = "SELECT * FROM Animal WHERE speciesID like '%".$_POST['Custom']."%' OR speciesName like '%".$_POST['Custom']."%' OR commonName Like '%".$_POST['Custom']."%' OR class Like '%".$_POST['Custom']."%';";
+								$result = mysqli_query($conn, $sql);
+								}
+							}	
+							else if ($_POST['Queries'] == 'R_Like') {
+								if ($_POST['Custom']){
+									echo "<h4>Searched: ".$_POST['Custom']."</h4>";
+									$sql = "SELECT * FROM Reserve WHERE ReserveName like '%".$_POST['Custom']."%' OR city like '%".$_POST['Custom']."%' OR reserveID like '%".$_POST['Custom']."%';";
+									$result = mysqli_query($conn, $sql);
+								}	
+								else if ($_POST['Custom'] == ''){
+									echo "<h1>Please enter an animal name into Custom Query box.</h1>";
+								}
+							}
 						}
 						// Run custom Query
 						else if (isset($_POST['Custom'])) {
@@ -103,9 +160,11 @@
 							$result = mysqli_query($conn, $sql);
 							echo "<h4>CUSTOM QUERY: ".$_POST['Custom']."</h4>";
 							if (!mysqli_query($conn,$sql)) {
-							  echo "SQLSTATE error: ".mysqli_sqlstate($conn);
+							  echo "SQL STATE error: ".mysqli_sqlstate($conn);
 							  echo "<br>";
+							  if (mysqli_error($conn)){
 							  echo "Error description: ".mysqli_error($conn);
+							  	}
 							  }
 						}
 
@@ -131,6 +190,10 @@
 					?>
 				</table>
 			</div>
+		</div>
+		<div background='blue'>
+				<h2 class="navbar-header"> Pagina </h2>
+		</div>
 		</div>
 	</div>
 </body>
