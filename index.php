@@ -13,7 +13,7 @@
 	<div class="container-fluid">
 		<!-- Body -->
 		<div class="navbar" style="background: rgba(63, 121, 78, 0.68); border-bottom:1px solid #666;  box-shadow:.1em .3em .3em #666; ">
-			<h1 class="navbar" style="padding-left: 1em;"> Wildlife Journal for Conservation </h1>
+			<h1 class="navbar-heading" style="padding-left: 1em;"> Wildlife Journal for Conservation </h1>
 			<p style="padding-left: 3em; color: #F5F5F8;"> Proyecto para CCOM 4027 <br> Creado por Israel O. Dilán y Juan Lugo</p>
 		</div>
 		<div  class="jumbotron">
@@ -65,13 +65,11 @@
 				   		}
 				   		else {
 				 			echo '<br>Connected successfully<br>';
-				  		}
-
+                        }
 						// List option
-				  		$List = $_POST['Queries'];
-
-				  		// Show all tables
-				  		if (isset($_POST['Tables'])) {
+				        $List = $_POST['Queries'];
+				        // Show all tables
+				        if (isset($_POST['Tables'])) {
 							$sql = "SHOW Tables;";
 							$result = mysqli_query($conn, $sql);
 						}
