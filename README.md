@@ -1,4 +1,4 @@
-# [Wildlife Journal for Conservation](ada.uprrp.edu/~idilan/WJC-DB/index.php)
+# [Wildlife Journal for Conservation](https://ada.uprrp.edu/~idilan/WJC-DB/index.php)
 
 _Sample Database User Interface_
 
