@@ -1,7 +1,7 @@
 # Wildlife Journal for Conservation
 
 [_Sample Database User Interface_] (ada.uprrp.edu/~idilan/WJC-DB/index.php)
-###### UI URL: ada.uprrp.edu/~idilan/WJC-DB/index.php
+###### UI URL: <ada.uprrp.edu/~idilan/WJC-DB/>
 
 
 This database aims to relate multiple wildlife reserves that protect endemic puertorrican species that are threatened.
